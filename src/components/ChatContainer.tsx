@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Message as MessageType } from "../lib/types";
- 
+
 import { Computer } from "lucide-react";
 import { LanguageSelector } from "./LanguegeSelector";
 import { formatTimestamp } from "../utils/helper";
@@ -200,13 +200,11 @@ export const Message: React.FC<MessageProps> = ({
             </div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 animate-pulse bg-green-50 dark:bg-green-900/20 py-2 px-4 rounded-lg">
               <span>
-                {isSummarizing
-                  ? "  summarizing..."
-                  : " translating..."}
+                {isSummarizing ? "  summarizing..." : " translating..."}
               </span>
-                <div className="flex space-x-1">
-                  <div className="w-4 h-4 border-2 border-t-2 border-t-transparent border-green-500 rounded-full animate-spin" />
-                </div>
+              <div className="flex space-x-1">
+                <div className="w-4 h-4 border-2 border-t-2 border-t-transparent border-green-500 rounded-full animate-spin" />
+              </div>
             </div>
           </div>
         )}
