@@ -227,7 +227,7 @@ export const Message: React.FC<MessageProps> = ({
             )}
 
             {message.summary && (
-              <div className="animate-fadeIn pt-3 border-t border-white/20">
+              <div className="animate-fadeIn pt-3">
                 <p className="text-sm font-medium mb-1 text-white/80">
                   Summary
                 </p>
