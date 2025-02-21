@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Message as MessageType } from "../lib/types";
  
-import { Bot } from "lucide-react";
+import { Bot, Computer } from "lucide-react";
 import { LanguageSelector } from "./LanguegeSelector";
 import { formatTimestamp } from "../utils/helper";
 
@@ -144,10 +144,10 @@ export const Message: React.FC<MessageProps> = ({
             ) : isNotEnglish && !isLongMessage ? (
               <button
                 onClick={handleTranslate}
-                className="p-1 bg-green-500 text-white rounded-lg text-xs"
+                className="p-1 bg-pink-500 text-white rounded-lg text-xs"
                 disabled={isTranslating}
               >
-                eme;lem
+                Translate
               </button>
             ) : (
               <>
@@ -196,28 +196,17 @@ export const Message: React.FC<MessageProps> = ({
         currentTranslationId === message.id && (
           <div className="flex items-start gap-3 mt-4">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md">
-              <Bot className="w-5 h-5 text-white" />
+              <Computer className="w-5 h-5 text-white" />
             </div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 animate-pulse bg-green-50 dark:bg-green-900/20 py-2 px-4 rounded-lg">
               <span>
                 {isSummarizing
-                  ? "Bot is summarizing..."
-                  : "Bot is translating..."}
+                  ? "  summarizing..."
+                  : " translating..."}
               </span>
-              <div className="flex space-x-1">
-                <div
-                  className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0s" }}
-                />
-                <div
-                  className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                />
-                <div
-                  className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.4s" }}
-                />
-              </div>
+                <div className="flex space-x-1">
+                  <div className="w-4 h-4 border-2 border-t-2 border-t-transparent border-green-500 rounded-full animate-spin" />
+                </div>
             </div>
           </div>
         )}
