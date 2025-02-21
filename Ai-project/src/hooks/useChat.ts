@@ -9,22 +9,25 @@ declare global {
 
 export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isBrowser = typeof window !== "undefined";
 
-  const isSummariser =
+  const clearError = () => {
+    setError(null);
+};
+
+  const isSummarizer =
     isBrowser && "ai" in window && "summarizer" in (window.ai as any);
   const isTranslator =
     isBrowser && "ai" in window && "translator" in (window.ai as any);
-  const isLanguegeDetector =
+  const isLanguageDetector =
     isBrowser && "ai" in window && "languageDetector" in (window.ai as any);
 
   const detectLanguage = async (text: string) => {
-    if (!isLanguegeDetector) {
-      console.warn("Languege is not supported");
-
+    if (!isLanguageDetector) {
+      console.warn("Language is not supported");
       return null;
     }
 
@@ -40,12 +43,14 @@ export const useChat = () => {
       console.log("Language Detection Result:", result);
       return result[0];
     } catch (error) {
-      console.error("Error durring detection", error);
+      console.error("Error during detection", error);
+      setError("Failed to detect language");
+      return null;
     }
   };
 
   const sendMessage = async (text: string) => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
@@ -70,9 +75,9 @@ export const useChat = () => {
         sender: "user",
         timestamp: new Date().toISOString(),
         detectedLanguage: detectedLanguageCode,
-        detectedLanguageName: `i am (${(confidence * 100).toFixed(
+        detectedLanguageName: `I am ${(confidence * 100).toFixed(
           1
-        )}% ) sure that this is ${detectedLanguageName}`,
+        )}% sure that this is ${detectedLanguageName}`,
         isTranslating: text.length <= 150,
         isSummarizing: text.length > 150,
       };
@@ -87,7 +92,7 @@ export const useChat = () => {
       console.error("Error during summarization or translation", error);
       setError(error.message || "Failed to process message");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -106,15 +111,7 @@ export const useChat = () => {
         const text = textToTranslate || message.text;
         const detectedLanguageCode = message.detectedLanguage || "en";
 
-        // console.log(
-        // 	"Detected Language Code in translateMessage:",
-        // 	detectedLanguageCode
-        // );
-        // console.log("Target Language:", targetLang);
         if (detectedLanguageCode === targetLang) {
-          // console.log(
-          // 	"Detected language matches target language. Skipping translation."
-          // );
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === messageId
@@ -134,20 +131,16 @@ export const useChat = () => {
 
         if (isTranslator) {
           const capabilities = await window.ai.translator.capabilities();
-          // console.log("Translation Capabilities:", capabilities);
-
           const languagePairStatus = capabilities.languagePairAvailable(
             detectedLanguageCode,
             targetLang
           );
-          // console.log("Language Pair Status:", languagePairStatus);
 
           if (languagePairStatus === "no") {
             console.warn(
-              `Translation from  ${detectedLanguageCode} to ${targetLang} is not supported`
+              `Translation from ${detectedLanguageCode} to ${targetLang} is not supported`
             );
-
-            setError(`translation to ${targetLang} is not supported.`);
+            setError(`Translation to ${targetLang} is not supported.`);
             return;
           }
 
@@ -193,18 +186,60 @@ export const useChat = () => {
     [messages]
   );
 
-  const summarizeMessage = useCallback(async (messageId: string) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === messageId ? { ...msg, isSummarizing: true } : msg
-      )
-    );
+  const summarizeMessage = useCallback(
+    async (messageId: string) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, isSummarizing: true } : msg
+        )
+      );
 
-    try {
-      const message = messages.find((m) => m.id === messageId);
-      if (!message) return
+      try {
+        const message = messages.find((m) => m.id === messageId);
+        if (!message) return;
 
-      if (isSummariser)
-    } catch (error) {}
-  });
+        if (isSummarizer) {
+          const summarizer = await window.ai.summarizer.create({
+            type: "headline",
+            format: "plain-text",
+            length: "short",
+          });
+
+          const summary = await summarizer.summarize(message.text);
+
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === messageId
+                ? { ...msg, isSummarizing: false, summary: summary }
+                : msg
+            )
+          );
+        } else {
+          console.warn("Summarizer API is not supported by the browser!");
+          setError("Summarizer is not supported in your browser");
+        }
+      } catch (error: any) {
+        console.error("Error during summarization", error);
+        setError(error.message);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId
+              ? { ...msg, isSummarizing: false, error: error.message }
+              : msg
+          )
+        );
+      }
+    },
+    [messages]
+  );
+
+  return {
+    messages,
+    isLoading,
+    error,
+    sendMessage,
+    clearError, 
+    translateMessage,
+    summarizeMessage,
+  };
 };
