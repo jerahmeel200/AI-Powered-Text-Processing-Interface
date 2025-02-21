@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import  { useEffect, useRef, useState } from 'react'
 import MessageInput from '../components/MessageInput'
 import { useChat } from '../hooks/useChat'
 import { Bot, User } from 'lucide-react'
 import { Message } from '../components/ChatContainer'
 import Welcome from '../components/Welcome'
  
-// import <Message></Message> from '../components/LanguegeSelector'
+ 
 
 
 const MainPage = () => {
