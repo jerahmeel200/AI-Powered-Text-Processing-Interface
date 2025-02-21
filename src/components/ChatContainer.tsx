@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Message as MessageType } from "../lib/types";
  
-import { Bot, Computer } from "lucide-react";
+import { Computer } from "lucide-react";
 import { LanguageSelector } from "./LanguegeSelector";
 import { formatTimestamp } from "../utils/helper";
 
